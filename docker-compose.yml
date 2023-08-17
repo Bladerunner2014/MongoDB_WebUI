@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+#  postgres:
+#    image: postgres
+#    ports:
+#      - 5432
+#    volumes:
+#      - db:/var/lib/postgresql/data
+
+#    environment:
+#      POSTGRES_USER: 'postgres'
+#      POSTGRES_PASSWORD: '1234'
+#      POSTGRES_DB: contact
+
+  web:
+    build: .
+    command: gunicorn core.wsgi:application --bind 0.0.0.0:8000
+    expose:
+      - 8000
+#    depends_on:
+#          - postgres
+  mongodb:
+    image: mongodb/mongodb-community-server:6.0-ubi8
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=user
+      - MONGO_INITDB_ROOT_PASSWORD=pass
+    ports:
+      - "5005:5005"
+    volumes:
+      - type: bind
+        source: ./data
+        target: /data/db
+#  nginx:
+#    build: ./nginx
+#    ports:
+#      - 1337:80
+#    depends_on:
+#        - drf-hunam
+#volumes:
+#  db:
