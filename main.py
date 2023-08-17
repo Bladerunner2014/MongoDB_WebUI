@@ -5,6 +5,8 @@ from dotenv import dotenv_values
 import logging
 from constants.info_message import InfoMessage
 from models.models import Doc
+from log import log
+
 tags_metadata = [
     {
         "name": "mon",
@@ -34,6 +36,7 @@ def get_crud(imsi: Annotated[str | None, Header(description="imsi")] = None,
     res = mg.find(condition)
     return res.generate_response()
 
+
 # @app.post("/mon/", tags=["mon"])
 # def get_crud(doc: Doc,
 #              username: Annotated[str | None, Header(description="username")] = None):
@@ -44,3 +47,6 @@ def get_crud(imsi: Annotated[str | None, Header(description="imsi")] = None,
 #     mg = Reqmanager()
 #     res = mg.find(condition)
 #     return res.generate_response()
+
+
+log.setup_logger()
