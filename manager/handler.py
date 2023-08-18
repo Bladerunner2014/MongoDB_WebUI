@@ -28,6 +28,69 @@ class Reqmanager:
             return res
 
         res.set_response({"message": InfoMessage.NOT_FOUND})
-        res.status_code(status.HTTP_404_NOT_FOUND)
+        res.set_status_code(status.HTTP_404_NOT_FOUND)
+
+        return res
+
+    def insert(self, doc: dict):
+        res = ResponseHandler()
+        duplicate_check = self.find(doc['imsi'])
+        if duplicate_check.status_code == status.HTTP_200_OK:
+            res.set_response({"message": ErrorMessage.ALREADY_EXISTS})
+            res.set_status_code(status.HTTP_400_BAD_REQUEST)
+            return res
+
+        try:
+            self.dao.insert_one(doc)
+            self.logger.info(InfoMessage.DB_INSERT)
+        except Exception as error:
+            self.logger.error(ErrorMessage.DB_INSERT)
+            self.logger.error(error)
+            raise Exception
+
+        res.set_response({"message": InfoMessage.DB_INSERT})
+        res.set_status_code(status.HTTP_201_CREATED)
+
+        return res
+
+    def update(self, doc: dict):
+        res = ResponseHandler()
+        duplicate_check = self.find(doc['imsi'])
+        if duplicate_check.status_code == status.HTTP_404_NOT_FOUND:
+            res.set_response({"message": ErrorMessage.NOT_FOUND})
+            res.set_status_code(status.HTTP_400_BAD_REQUEST)
+            return res
+
+        try:
+            self.dao.update(fltr=doc["imsi"], new_values=doc)
+            self.logger.info(InfoMessage.DB_UPDATED)
+        except Exception as error:
+            self.logger.error(ErrorMessage.DB_INSERT)
+            self.logger.error(error)
+            raise Exception
+
+        res.set_response({"message": InfoMessage.DB_UPDATED})
+        res.set_status_code(status.HTTP_200_OK)
+
+        return res
+
+    def delete(self, doc: dict):
+        res = ResponseHandler()
+        duplicate_check = self.find(doc['imsi'])
+        if duplicate_check.status_code == status.HTTP_404_NOT_FOUND:
+            res.set_response({"message": ErrorMessage.NOT_FOUND})
+            res.set_status_code(status.HTTP_400_BAD_REQUEST)
+            return res
+
+        try:
+            self.dao.delete(doc["imsi"])
+            self.logger.info(InfoMessage.DB_DELETE)
+        except Exception as error:
+            self.logger.error(ErrorMessage.DB_DELETE)
+            self.logger.error(error)
+            raise Exception
+
+        res.set_response({"message": InfoMessage.DB_DELETE})
+        res.set_status_code(status.HTTP_200_OK)
 
         return res

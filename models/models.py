@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+
 class Doc(BaseModel):
     name: str
     description: str | None = None
