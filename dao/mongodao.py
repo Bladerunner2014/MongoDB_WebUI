@@ -17,7 +17,7 @@ class Open5GSdao:
 
     def insert_one(self, query: dict):
         try:
-            return json.dumps(self.db.insert_one(query))
+            self.db.insert_one(query)
         except pymongo.errors as error:
             logger.error(ErrorMessage.DB_INSERT)
             logger.error(error)
@@ -26,6 +26,7 @@ class Open5GSdao:
     def find(self, condition: dict):
         try:
             dt = self.parse_json(self.db.find_one(condition))
+
             return dt
             # return self.db.find_one(condition)
         except pymongo.errors as error:

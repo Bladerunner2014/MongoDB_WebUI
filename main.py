@@ -30,7 +30,7 @@ def get_crud(imsi: Annotated[str | None, Header(description="imsi")] = None,
              username: Annotated[str | None, Header(description="username")] = None):
     condition = {'imsi': imsi}
     parts = username.split("_")
-    condition['pna'] = parts[1]
+    # condition['pna'] = parts[1]
 
     logger.info(InfoMessage.GET_REQUEST.format(username=username, imsi=imsi))
 
@@ -66,15 +66,15 @@ def put_crud(doc: Annotated[Doc | None, Body(description="Document")] = None,
 
 
 @app.delete("/mon/", tags=["mon"], response_model=dict)
-def delete_crud(doc: Annotated[Doc | None, Body(description="Document")] = None,
+def delete_crud(imsi: Annotated[str | None, Header(description="imsi")] = None,
                 username: Annotated[str | None, Header(description="username")] = None):
     # parts = username.split("_")
     res = ResponseHandler()
-
+    condition = {"imsi": imsi}
     # condition['pna'] = parts[1]
-    logger.info(InfoMessage.DELETE_REQUEST.format(username=username, document=doc))
+    logger.info(InfoMessage.DELETE_REQUEST.format(username=username, document=imsi))
     mg = Reqmanager()
-    res = mg.delete(dict(doc))
+    res = mg.delete(condition)
     return res.generate_response()
 
 

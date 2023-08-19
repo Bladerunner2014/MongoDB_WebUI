@@ -13,14 +13,14 @@ class DBconnect:
     def connect(self):
 
         try:
-            client = pymongo.MongoClient(self.config['DB_HOST'], self.config['DB_PORT'])
+            client = pymongo.MongoClient(self.config['DB_HOST'], int(self.config['DB_PORT']))
         except Exception as error:
             self.logger.error(ErrorMessage.DB_CONNECTION)
             self.logger.error(error)
             raise Exception
 
         try:
-            database = self.config['DB_name']
+            database = client[self.config['DB_NAME']]
             collection = database[self.config['DB_COLLECTION_NAME']]
         except Exception as error:
             self.logger.error(ErrorMessage.DB_CONNECTION)

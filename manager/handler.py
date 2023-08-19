@@ -24,7 +24,7 @@ class Reqmanager:
             raise Exception
         if result:
             res.set_response(result)
-            res.status_code(status.HTTP_200_OK)
+            res.set_status_code(status.HTTP_200_OK)
             return res
 
         res.set_response({"message": InfoMessage.NOT_FOUND})
@@ -34,8 +34,9 @@ class Reqmanager:
 
     def insert(self, doc: dict):
         res = ResponseHandler()
-        duplicate_check = self.find(doc['imsi'])
-        if duplicate_check.status_code == status.HTTP_200_OK:
+        imsi = {"imsi": doc['imsi']}
+        duplicate_check = self.find(imsi)
+        if duplicate_check.generate_response().status_code == status.HTTP_200_OK:
             res.set_response({"message": ErrorMessage.ALREADY_EXISTS})
             res.set_status_code(status.HTTP_400_BAD_REQUEST)
             return res
@@ -55,8 +56,9 @@ class Reqmanager:
 
     def update(self, doc: dict):
         res = ResponseHandler()
-        duplicate_check = self.find(doc['imsi'])
-        if duplicate_check.status_code == status.HTTP_404_NOT_FOUND:
+        imsi = {"imsi": doc['imsi']}
+        duplicate_check = self.find(imsi)
+        if duplicate_check.generate_response().status_code == status.HTTP_404_NOT_FOUND:
             res.set_response({"message": ErrorMessage.NOT_FOUND})
             res.set_status_code(status.HTTP_400_BAD_REQUEST)
             return res
@@ -76,14 +78,15 @@ class Reqmanager:
 
     def delete(self, doc: dict):
         res = ResponseHandler()
-        duplicate_check = self.find(doc['imsi'])
-        if duplicate_check.status_code == status.HTTP_404_NOT_FOUND:
+        imsi = {"imsi": doc['imsi']}
+        duplicate_check = self.find(imsi)
+        if duplicate_check.generate_response().status_code == status.HTTP_404_NOT_FOUND:
             res.set_response({"message": ErrorMessage.NOT_FOUND})
             res.set_status_code(status.HTTP_400_BAD_REQUEST)
             return res
 
         try:
-            self.dao.delete(doc["imsi"])
+            self.dao.delete(doc)
             self.logger.info(InfoMessage.DB_DELETE)
         except Exception as error:
             self.logger.error(ErrorMessage.DB_DELETE)
