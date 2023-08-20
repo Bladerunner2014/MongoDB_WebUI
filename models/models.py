@@ -7,11 +7,25 @@ class Doc(BaseModel):
     # price: float
     # tax: float | None = None
 
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    username: str | None = None
+
+
 class User(BaseModel):
     username: str
-    email: str | None = None
+    company: str
     full_name: str | None = None
     disabled: bool | None = None
+
+
+class UserInDB(User):
+    hashed_password: str
 
 # {'_id': ObjectId('64da2a78cfb5a5f7deba10ab'), 'schema_version': 1, 'imsi': '123456789',
 #  'msisdn': ['54654324', '4485499494'], 'imeisv': [], 'mme_host': [], 'mme_realm': [],
