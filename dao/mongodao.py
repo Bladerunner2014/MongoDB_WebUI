@@ -35,8 +35,10 @@ class Open5GSdao:
             raise error
 
     def update(self, fltr: dict, new_values: dict):
+        newvalues = {"$set": new_values}
+
         try:
-            self.db.update_one(fltr, new_values)
+            self.db.update_one(fltr, newvalues)
         except pymongo.errors as error:
             logger.error(ErrorMessage.DB_UPDATE)
             logger.error(error)

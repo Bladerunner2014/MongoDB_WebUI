@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 class Doc(BaseModel):
     imsi: str
-    # description: str | None = None
+    description: str | None = None
     # price: float
     # tax: float | None = None
 

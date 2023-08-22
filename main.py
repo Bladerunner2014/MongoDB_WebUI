@@ -30,13 +30,13 @@ logger = logging.getLogger(__name__)
 
 
 @app.get("/mon/", tags=["mon"])
-def get_crud(imsi: Annotated[str | None, Header(description="imsi")] = None,
-             username: Annotated[str | None, Header(description="username")] = None):
-    condition = {'imsi': imsi}
-    parts = username.split("_")
-    # condition['pna'] = parts[1]
+def get_crud(current_user: Annotated[User, Depends(get_current_active_user)] = None,
+             imsi: Annotated[str | None, Header(description="imsi")] = None,
 
-    logger.info(InfoMessage.GET_REQUEST.format(username=username, imsi=imsi))
+             ):
+    condition = {'imsi': imsi}
+
+    logger.info(InfoMessage.GET_REQUEST.format(username=current_user.username, imsi=imsi))
 
     mg = Reqmanager()
     res = mg.find(condition)
@@ -44,26 +44,20 @@ def get_crud(imsi: Annotated[str | None, Header(description="imsi")] = None,
 
 
 @app.post("/mon/", tags=["mon"], response_model=dict)
-def post_crud(doc: Annotated[Doc | None, Body(description="Document")] = None,
-              username: Annotated[str | None, Header(description="username")] = None):
-    # parts = username.split("_")
-    res = ResponseHandler()
-
-    # condition['pna'] = parts[1]
-    logger.info(InfoMessage.POST_REQUEST.format(username=username, document=doc))
+def post_crud(current_user: Annotated[User, Depends(get_current_active_user)] = None,
+              doc: Annotated[Doc | None, Body(description="Document")] = None):
+    logger.info(InfoMessage.POST_REQUEST.format(username=current_user.username, document=doc))
     mg = Reqmanager()
     res = mg.insert(dict(doc))
     return res.generate_response()
 
 
 @app.put("/mon/", tags=["mon"], response_model=dict)
-def put_crud(doc: Annotated[Doc | None, Body(description="Document")] = None,
-             username: Annotated[str | None, Header(description="username")] = None):
-    # parts = username.split("_")
-    res = ResponseHandler()
+def put_crud(
+        doc: Annotated[Doc | None, Body(description="Document")] = None,
+        current_user: Annotated[User, Depends(get_current_active_user)] = None):
 
-    # condition['pna'] = parts[1]
-    logger.info(InfoMessage.PUT_REQUEST.format(username=username, document=doc))
+    logger.info(InfoMessage.PUT_REQUEST.format(username=current_user.username, document=doc))
     mg = Reqmanager()
     res = mg.update(dict(doc))
     return res.generate_response()
@@ -71,18 +65,15 @@ def put_crud(doc: Annotated[Doc | None, Body(description="Document")] = None,
 
 @app.delete("/mon/", tags=["mon"], response_model=dict)
 def delete_crud(imsi: Annotated[str | None, Header(description="imsi")] = None,
-                username: Annotated[str | None, Header(description="username")] = None):
-    # parts = username.split("_")
-    res = ResponseHandler()
+                current_user: Annotated[User, Depends(get_current_active_user)] = None):
     condition = {"imsi": imsi}
-    # condition['pna'] = parts[1]
-    logger.info(InfoMessage.DELETE_REQUEST.format(username=username, document=imsi))
+    logger.info(InfoMessage.DELETE_REQUEST.format(username=current_user.username, document=imsi))
     mg = Reqmanager()
     res = mg.delete(condition)
     return res.generate_response()
 
 
-@app.post("/token",tags=["auth"], response_model=Token)
+@app.post("/token", tags=["auth"], response_model=Token)
 async def login_for_access_token(
         form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
 ):
@@ -101,18 +92,18 @@ async def login_for_access_token(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@app.get("/users/me/",tags=["test"], response_model=User)
-async def read_users_me(
-        current_user: Annotated[User, Depends(get_current_active_user)]
-):
-    return current_user
-
-
-@app.get("/users/me/items/",tags=["test"])
-async def read_own_items(
-        current_user: Annotated[User, Depends(get_current_active_user)]
-):
-    return [{"item_id": "Foo", "owner": current_user.username}]
+# @app.get("/users/me/", tags=["test"], response_model=User)
+# async def read_users_me(
+#         current_user: Annotated[User, Depends(get_current_active_user)]
+# ):
+#     return current_user
+#
+#
+# @app.get("/users/me/items/", tags=["test"])
+# async def read_own_items(
+#         current_user: Annotated[User, Depends(get_current_active_user)]
+# ):
+#     return [{"item_id": "Foo", "owner": current_user.username}]
 
 
 log.setup_logger()

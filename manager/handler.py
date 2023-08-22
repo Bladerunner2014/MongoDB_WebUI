@@ -64,10 +64,10 @@ class Reqmanager:
             return res
 
         try:
-            self.dao.update(fltr=doc["imsi"], new_values=doc)
+            self.dao.update(fltr=imsi, new_values=doc)
             self.logger.info(InfoMessage.DB_UPDATED)
         except Exception as error:
-            self.logger.error(ErrorMessage.DB_INSERT)
+            self.logger.error(ErrorMessage.DB_UPDATE)
             self.logger.error(error)
             raise Exception
 
