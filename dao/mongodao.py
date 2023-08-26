@@ -12,8 +12,8 @@ logger = logging.getLogger(__name__)
 
 class Open5GSdao:
 
-    def __init__(self, collection_name):
-        self.db = DBconnect(collection_name).connect()
+    def __init__(self, collection_name, database):
+        self.db = DBconnect(collection_name, database=database).connect()
 
     def insert_one(self, query: dict):
         try:

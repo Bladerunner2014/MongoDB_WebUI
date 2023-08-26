@@ -5,7 +5,12 @@ from models.models import UserInDB, TokenData, User
 from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status
 from typing import Annotated
+from dao.mongodao import Open5GSdao
+from dotenv import dotenv_values
+from http_handler.response_handler import ResponseHandler
+from pymongo import MongoClient
 
+config = dotenv_values(".env")
 SECRET_KEY = "eadbd2a39f77603af42f1926e399c92fdbcc389c90aa0fa0e0b8914ef734e1a6"
 ALGORITHM = "HS256"
 
@@ -13,15 +18,16 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-fake_users_db = {
-    "johndoe": {
-        "username": "johndoe",
-        "full_name": "John Doe",
-        "company": "ATT",
-        "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
-        "disabled": False,
-    }
-}
+
+# fake_users_db = {
+#     "johndoe": {
+#         "username": "johndoe",
+#         "full_name": "John Doe",
+#         "company": "ATT",
+#         "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
+#         "disabled": False,
+#     }
+# }
 
 
 def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
@@ -45,9 +51,14 @@ def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
 
 
 def get_user(username: str):
-    if username in fake_users_db:
-        user_dict = fake_users_db[username]
-        return UserInDB(**user_dict)
+    client = MongoClient(config['DB_HOST'], int(config['DB_PORT']))
+    # db = client.open5gs
+    # db = client[settings.DB_NAME]
+    database = client["users"]
+    collection = database["user_info"]
+    cursor = collection.find_one({'username': 'johndoe'})
+    print(cursor)
+    return UserInDB(**cursor)
 
 
 def get_current_active_user(

@@ -10,6 +10,7 @@ from security.details import *
 from http_handler.response_handler import ResponseHandler
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
+from fastapi.middleware.cors import CORSMiddleware
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 tags_metadata = [
@@ -24,7 +25,21 @@ tags_metadata = [
     },
 ]
 app = FastAPI(openapi_tags=tags_metadata)
+origins = [
+    "http://192.168.0.253:5173",
 
+    "http://192.168.0.253",
+    "http://localhost",
+    "http://localhost:8080",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 config = dotenv_values(".env")
 logger = logging.getLogger(__name__)
 

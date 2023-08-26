@@ -5,7 +5,8 @@ from dotenv import dotenv_values
 
 
 class DBconnect:
-    def __init__(self, collection):
+    def __init__(self, collection, database):
+        self.database = database
         self.collection = collection
         self.config = dotenv_values(".env")
         self.logger = logging.getLogger(__name__)
@@ -20,7 +21,7 @@ class DBconnect:
             raise Exception
 
         try:
-            database = client[self.config['DB_NAME']]
+            database = client[self.database]
             collection = database[self.config['DB_COLLECTION_NAME']]
         except Exception as error:
             self.logger.error(ErrorMessage.DB_CONNECTION)

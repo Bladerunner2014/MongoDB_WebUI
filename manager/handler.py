@@ -11,7 +11,7 @@ class Reqmanager:
     def __init__(self):
         self.config = dotenv_values(".env")
         self.logger = logging.getLogger(__name__)
-        self.dao = Open5GSdao(self.config['DB_COLLECTION_NAME'])
+        self.dao = Open5GSdao(self.config['DB_COLLECTION_NAME'], self.config["DB_NAME"])
 
     def find(self, condition: dict):
         res = ResponseHandler()
