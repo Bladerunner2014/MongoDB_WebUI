@@ -11,7 +11,6 @@ from http_handler.response_handler import ResponseHandler
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
 from fastapi.middleware.cors import CORSMiddleware
-
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 tags_metadata = [
     {
@@ -26,11 +25,7 @@ tags_metadata = [
 ]
 app = FastAPI(openapi_tags=tags_metadata)
 origins = [
-    "http://192.168.0.253:5173",
-
-    "http://192.168.0.253",
-    "http://localhost",
-    "http://localhost:8080",
+    "*"
 ]
 
 app.add_middleware(
@@ -44,11 +39,9 @@ config = dotenv_values(".env")
 logger = logging.getLogger(__name__)
 
 
-@app.get("/mon/", tags=["mon"])
-def get_crud(current_user: Annotated[User, Depends(get_current_active_user)] = None,
-             imsi: Annotated[str | None, Header(description="imsi")] = None,
-
-             ):
+@app.get("/mon/{imsi}", tags=["mon"], response_model=Doc)
+def get_crud(imsi,current_user: Annotated[User, Depends(get_current_active_user)] = None,
+              ):
     condition = {'imsi': imsi}
 
     logger.info(InfoMessage.GET_REQUEST.format(username=current_user.username, imsi=imsi))
@@ -78,8 +71,8 @@ def put_crud(
     return res.generate_response()
 
 
-@app.delete("/mon/", tags=["mon"], response_model=dict)
-def delete_crud(imsi: Annotated[str | None, Header(description="imsi")] = None,
+@app.delete("/mon/{imsi}", tags=["mon"], response_model=dict)
+def delete_crud(imsi,
                 current_user: Annotated[User, Depends(get_current_active_user)] = None):
     condition = {"imsi": imsi}
     logger.info(InfoMessage.DELETE_REQUEST.format(username=current_user.username, document=imsi))

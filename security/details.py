@@ -54,10 +54,12 @@ def get_user(username: str):
     client = MongoClient(config['DB_HOST'], int(config['DB_PORT']))
     # db = client.open5gs
     # db = client[settings.DB_NAME]
-    database = client["users"]
-    collection = database["user_info"]
-    cursor = collection.find_one({'username': 'johndoe'})
+    database = client[config["USER_DB_NAME"]]
+    collection = database[config["USER_COLLECTION_NAME"]]
+    cursor = collection.find_one({'username': username})
     print(cursor)
+    if not cursor:
+        return False
     return UserInDB(**cursor)
 
 
