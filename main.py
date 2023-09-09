@@ -1,17 +1,17 @@
 from typing import Annotated
 from manager.handler import Reqmanager
-from fastapi import FastAPI, Header, Body
-from dotenv import dotenv_values
+from fastapi import FastAPI, Body
 import logging
 from constants.info_message import InfoMessage
-from models.models import Doc, Token, User
+from models.models import Token, User, model_config
 from log import log
 from security.details import *
-from http_handler.response_handler import ResponseHandler
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
 from fastapi.middleware.cors import CORSMiddleware
+
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
 tags_metadata = [
     {
         "name": "mon",
@@ -39,9 +39,9 @@ config = dotenv_values(".env")
 logger = logging.getLogger(__name__)
 
 
-@app.get("/mon/{imsi}", tags=["mon"], response_model=Doc)
-def get_crud(imsi,current_user: Annotated[User, Depends(get_current_active_user)] = None,
-              ):
+@app.get("/mon/{imsi}", tags=["mon"])
+def get_crud(imsi, current_user: Annotated[User, Depends(get_current_active_user)] = None,
+             ):
     condition = {'imsi': imsi}
 
     logger.info(InfoMessage.GET_REQUEST.format(username=current_user.username, imsi=imsi))
@@ -53,7 +53,7 @@ def get_crud(imsi,current_user: Annotated[User, Depends(get_current_active_user)
 
 @app.post("/mon/", tags=["mon"], response_model=dict)
 def post_crud(current_user: Annotated[User, Depends(get_current_active_user)] = None,
-              doc: Annotated[Doc | None, Body(description="Document")] = None):
+              doc: Annotated[dict | None, Body(examples=[model_config], description="Document")] = None):
     logger.info(InfoMessage.POST_REQUEST.format(username=current_user.username, document=doc))
     mg = Reqmanager()
     res = mg.insert(dict(doc))
@@ -62,9 +62,8 @@ def post_crud(current_user: Annotated[User, Depends(get_current_active_user)] = 
 
 @app.put("/mon/", tags=["mon"], response_model=dict)
 def put_crud(
-        doc: Annotated[Doc | None, Body(description="Document")] = None,
+        doc: Annotated[dict | None, Body(examples=[model_config],description="Document")] = None,
         current_user: Annotated[User, Depends(get_current_active_user)] = None):
-
     logger.info(InfoMessage.PUT_REQUEST.format(username=current_user.username, document=doc))
     mg = Reqmanager()
     res = mg.update(dict(doc))
