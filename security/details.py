@@ -11,8 +11,6 @@ from http_handler.response_handler import ResponseHandler
 from pymongo import MongoClient
 
 config = dotenv_values(".env")
-SECRET_KEY = "eadbd2a39f77603af42f1926e399c92fdbcc389c90aa0fa0e0b8914ef734e1a6"
-ALGORITHM = "HS256"
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -37,7 +35,7 @@ def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, config['SECRET_KEY'], algorithms=[config['ALGORITHM']])
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
@@ -52,12 +50,10 @@ def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
 
 def get_user(username: str):
     client = MongoClient(config['DB_HOST'], int(config['DB_PORT']))
-    # db = client.open5gs
-    # db = client[settings.DB_NAME]
+
     database = client[config["USER_DB_NAME"]]
     collection = database[config["USER_COLLECTION_NAME"]]
     cursor = collection.find_one({'username': username})
-    print(cursor)
     if not cursor:
         return False
     return UserInDB(**cursor)
@@ -78,7 +74,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, config['SECRET_KEY'], algorithm=config['ALGORITHM'])
     return encoded_jwt
 
 
