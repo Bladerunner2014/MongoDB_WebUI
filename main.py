@@ -10,7 +10,6 @@ from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
 from fastapi.middleware.cors import CORSMiddleware
 
-
 tags_metadata = [
     {
         "name": "mon",
@@ -41,7 +40,7 @@ logger = logging.getLogger(__name__)
 @app.get("/mon/{imsi}", tags=["mon"])
 def get_crud(imsi, current_user: Annotated[User, Depends(get_current_active_user)] = None,
              ):
-    condition = {'imsi': imsi}
+    condition = {'imsi': imsi, 'slice.session.name': current_user.company}
 
     logger.info(InfoMessage.GET_REQUEST.format(username=current_user.username, imsi=imsi))
 
@@ -61,7 +60,7 @@ def post_crud(current_user: Annotated[User, Depends(get_current_active_user)] = 
 
 @app.put("/mon/", tags=["mon"], response_model=dict)
 def put_crud(
-        doc: Annotated[dict | None, Body(examples=[model_config],description="Document")] = None,
+        doc: Annotated[dict | None, Body(examples=[model_config], description="Document")] = None,
         current_user: Annotated[User, Depends(get_current_active_user)] = None):
     logger.info(InfoMessage.PUT_REQUEST.format(username=current_user.username, document=doc))
     mg = Reqmanager()
@@ -72,7 +71,7 @@ def put_crud(
 @app.delete("/mon/{imsi}", tags=["mon"], response_model=dict)
 def delete_crud(imsi,
                 current_user: Annotated[User, Depends(get_current_active_user)] = None):
-    condition = {"imsi": imsi}
+    condition = {"imsi": imsi, 'slice.session.name': current_user.company}
     logger.info(InfoMessage.DELETE_REQUEST.format(username=current_user.username, document=imsi))
     mg = Reqmanager()
     res = mg.delete(condition)
@@ -91,11 +90,11 @@ async def login_for_access_token(
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token_expires = timedelta(minutes=int(config["ACCESS_TOKEN_EXPIRE_MINUTES"]))
-
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+
+    return {"access_token": access_token, "token_type": "bearer", "apn": user.company}
 
 
 # @app.get("/users/me/", tags=["test"], response_model=User)

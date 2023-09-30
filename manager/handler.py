@@ -79,14 +79,14 @@ class Reqmanager:
     def delete(self, doc: dict):
         res = ResponseHandler()
         imsi = {"imsi": doc['imsi']}
-        duplicate_check = self.find(imsi)
+        duplicate_check = self.find(doc)
         if duplicate_check.generate_response().status_code == status.HTTP_404_NOT_FOUND:
             res.set_response({"message": ErrorMessage.NOT_FOUND})
             res.set_status_code(status.HTTP_400_BAD_REQUEST)
             return res
 
         try:
-            self.dao.delete(doc)
+            self.dao.delete(imsi)
             self.logger.info(InfoMessage.DB_DELETE)
         except Exception as error:
             self.logger.error(ErrorMessage.DB_DELETE)

@@ -15,6 +15,7 @@ model_config = {'schema_version': 1, 'imsi': '008', 'msisdn': [], 'imeisv': [], 
 class Token(BaseModel):
     access_token: str
     token_type: str
+    apn: str
 
 
 class TokenData(BaseModel):
