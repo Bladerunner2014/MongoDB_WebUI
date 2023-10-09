@@ -58,6 +58,17 @@ def post_crud(current_user: Annotated[User, Depends(get_current_active_user)] = 
     return res.generate_response()
 
 
+@app.post("/mon/batch", tags=["mon"])
+def post_crud(
+              batch):
+    # logger.info(InfoMessage.POST_REQUEST.format(username=current_user.username, document="xml"))
+    print(batch)
+    # mg = Reqmanager()
+    # res = mg.insert(batch)
+    # return res.generate_response()
+    return 200
+
+
 @app.put("/mon/", tags=["mon"], response_model=dict)
 def put_crud(
         doc: Annotated[dict | None, Body(examples=[model_config], description="Document")] = None,
